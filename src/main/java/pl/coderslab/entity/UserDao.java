@@ -45,11 +45,8 @@ public class UserDao {
             preparedStatement.setInt(1, userId);
             ResultSet rs = preparedStatement.executeQuery();
             while (rs.next()) {
-                User user = new User();
-                user.setId(rs.getInt("id"));
-                user.setUserName(rs.getString("username"));
-                user.setEmail(rs.getString("email"));
-                user.setPassword(rs.getString("password"));
+                User user = new User(rs.getInt("id"), rs.getString("username"),
+                        rs.getString("email"), rs.getString("password"));
                 return user;
             }
         } catch (SQLException e) {
@@ -59,12 +56,12 @@ public class UserDao {
     }
 
     public void update(User user) {
-        String updateQuery = "update users set username = ?, email = ?, password = ? where id = ?;";
+        String UPDATE_USER_QUERY = "update users set username = ?, email = ?, password = ? where id = ?;";
         try (Connection connection = DbUtil.getConnection()) {
-            PreparedStatement preparedStatement = connection.prepareStatement(updateQuery);
+            PreparedStatement preparedStatement = connection.prepareStatement(UPDATE_USER_QUERY);
             preparedStatement.setString(1, user.getUserName());
             preparedStatement.setString(2, user.getEmail());
-            preparedStatement.setString(3, this.hashPassword(user.getPassword()));
+            preparedStatement.setString(3, hashPassword(user.getPassword()));
             preparedStatement.setInt(4, user.getId());
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
@@ -73,33 +70,29 @@ public class UserDao {
     }
 
     public void delete(int userId) {
-            String deleteQuery = "delete from users where id = ?;";
-            try(Connection connection = DbUtil.getConnection()) {
-                PreparedStatement preparedStatement = connection.prepareStatement(deleteQuery);
-                preparedStatement.setInt(1, userId);
-                preparedStatement.executeUpdate();
-            }catch (SQLException e) {
-                e.printStackTrace();
-            }
+        String DELETE_USER_QUERY = "delete from users where id = ?;";
+        try (Connection connection = DbUtil.getConnection()) {
+            PreparedStatement preparedStatement = connection.prepareStatement(DELETE_USER_QUERY);
+            preparedStatement.setInt(1, userId);
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
+    }
 
     public User[] findAll() {
-        String findAllQuery = "select * from users;";
+        String FIND_ALL_QUERY = "select * from users;";
         User[] findAll = new User[0];
-        try(Connection connection = DbUtil.getConnection()) {
-            PreparedStatement preparedStatement = connection.prepareStatement(findAllQuery);
+        try (Connection connection = DbUtil.getConnection()) {
+            PreparedStatement preparedStatement = connection.prepareStatement(FIND_ALL_QUERY);
             ResultSet rs = preparedStatement.executeQuery();
             while (rs.next()) {
-                User user = new User();
-                user.setUserName(rs.getString("username"));
-                user.setEmail(rs.getString("email"));
-                user.setPassword(rs.getString("password"));
-                user.setId(rs.getInt("id"));
-                //findAll = addToArray(user, findAll);
+                User user = new User(rs.getInt("id"), rs.getString("username"),
+                        rs.getString("email"), rs.getString("password"));
                 findAll = ArrayUtils.add(findAll, user);
             }
             return findAll;
-        }catch (SQLException e){
+        } catch (SQLException e) {
             e.printStackTrace();
         }
         return null;
