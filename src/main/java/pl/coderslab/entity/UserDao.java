@@ -64,7 +64,7 @@ public class UserDao {
             PreparedStatement preparedStatement = connection.prepareStatement(updateQuery);
             preparedStatement.setString(1, user.getUserName());
             preparedStatement.setString(2, user.getEmail());
-            preparedStatement.setString(3, this.hashPassword(user.getPassword()));
+            preparedStatement.setString(3, hashPassword(user.getPassword()));
             preparedStatement.setInt(4, user.getId());
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
